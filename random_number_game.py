@@ -49,19 +49,6 @@ f = open("highscore.txt", "a")
 f.write(str(tries) + " tries. User: " + user_name + "\n")
 f.close()
 
-# f = open("highscore.txt", "r")
-# scores = []
-# for line in f.readlines():
-#     scores.append([line])
-# scores.sort()
-# f.close()
-
-# with open("highscore.txt", "w") as f:
-#     f.write(str(scores) + "\n")
-# f.close()
-
-# print(scores)
-
-# f = open("highscore.txt", "r")
-# print(f.read())
-# f.close()
+f = open("highscore.txt", "r")
+print(f.read())
+f.close()

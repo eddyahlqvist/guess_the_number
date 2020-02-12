@@ -34,23 +34,18 @@ bot_guess = random.randint(1, 100)
 
 # Starting values for the bot guess range
 high_num = 100
-low_num = 0
+low_num = 1
 
 # Below while loop is all about the bot
 while bot_mode:
-    print("--==<< Bot mode >>==-- \nBot is now guessing on a number between 1 and 100: ")
+    print("--==<< Bot mode >>==-- \nBot is now guessing on a number between " + str(low_num) + " and " + str(high_num))
     used_numbers.append(bot_guess)
     print("Guessing", end='')
     sys.stdout.flush()
-    time.sleep(0.8)
-    print(".", end='')
-    sys.stdout.flush()
-    time.sleep(0.8)
-    print(".", end='')
-    sys.stdout.flush()
-    time.sleep(0.8)
-    print(". ", end='')
-    sys.stdout.flush()
+    for i in range(3):
+        time.sleep(0.5)
+        print(". ", end='')
+        sys.stdout.flush()
     time.sleep(1)
     print(str(bot_guess))
     if bot_guess == random_number:
@@ -65,11 +60,13 @@ while bot_mode:
         low_num = bot_guess + 1
         time.sleep(1.5)
         bot_guess = random.randint(bot_guess + 1, high_num)
+        print("To low, try again")
         tries += 1
     else:
         high_num = bot_guess - 1
         time.sleep(1.5)
         bot_guess = random.randint(low_num, bot_guess - 1)
+        print("To high, try again")
         tries += 1
 
 # Below while loop is all about the player

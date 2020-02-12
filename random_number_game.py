@@ -32,9 +32,11 @@ win = False
 # Variable for random bot guess
 bot_guess = random.randint(1, 100)
 
+# Starting values for the bot guess range
 high_num = 100
 low_num = 0
 
+# Below while loop is all about the bot
 while bot_mode:
     print("--==<< Bot mode >>==-- \nBot is now guessing on a number between 1 and 100: ")
     used_numbers.append(bot_guess)
@@ -70,6 +72,7 @@ while bot_mode:
         bot_guess = random.randint(low_num, bot_guess - 1)
         tries += 1
 
+# Below while loop is all about the player
 while not win:
     try:
         guess = int(input("Guess on a number between 1 and 100: "))
@@ -93,6 +96,8 @@ while not win:
         print("To low, try again")
     else:
         print("To high, try again")
+
+# Below is High Score stuff
 
 # f = open("highscore.txt", "a")
 # f.write(str(tries) + " tries. User: " + user_name + "\n")

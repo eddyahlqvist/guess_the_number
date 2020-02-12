@@ -3,6 +3,9 @@
 # Import the random library to be able to create a random number
 import random
 
+# Import time library for calming down the bot a bit
+import time
+
 # Create a random number between 1 and 100 and assign it to the variable 'random_number'
 random_number = random.randint(1, 100)
 
@@ -30,9 +33,11 @@ high_num = 100
 low_num = 0
 
 while bot_mode:
-    print("This is Bot mode \nBot is now guessing on a number between 1 and 100: ")
+    print("--==<< Bot mode >>==-- \nBot is now guessing on a number between 1 and 100: ")
     used_numbers.append(bot_guess)
-    print("Bot is guessing on: " + str(bot_guess))
+    print("Guessing... ")
+    time.sleep(1.5)
+    print(str(bot_guess))
     if bot_guess == random_number:
         print("Congratulations " + user_name + "! " + str(random_number) + " was the correct number :)")
         if tries > 1:
@@ -43,10 +48,12 @@ while bot_mode:
         win = True
     elif bot_guess < random_number:
         low_num = bot_guess + 1
+        time.sleep(1.5)
         bot_guess = random.randint(bot_guess + 1, high_num)
         tries += 1
     else:
         high_num = bot_guess - 1
+        time.sleep(1.5)
         bot_guess = random.randint(low_num, bot_guess - 1)
         tries += 1
 
@@ -74,10 +81,10 @@ while not win:
     else:
         print("To high, try again")
 
-# f = open("highscore.txt", "a")
-# f.write(str(tries) + " tries. User: " + user_name + "\n")
-# f.close()
-#
-# f = open("highscore.txt", "r")
-# print(f.read())
-# f.close()
+f = open("highscore.txt", "a")
+f.write(str(tries) + " tries. User: " + user_name + "\n")
+f.close()
+
+f = open("highscore.txt", "r")
+print(f.read())
+f.close()

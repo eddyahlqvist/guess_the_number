@@ -1,21 +1,13 @@
 # Coded by Eddy Ahlqvist - 2020
+# Modified in 2025 for learning purposes
 
-# Import the random library to be able to create a random number
 import random
-
-# Import time library for calming down the bot a bit
 import time
-
-# Need sys to flush in the bot stream
 import sys
 
-# Create a random number between 1 and 100 and assign it to the variable 'random_number'
 random_number = random.randint(1, 100)
-
-# Keeps track on how many guesses the user will input before finding the correct number
 tries = 0
 
-# Stores the user name from an input or turn on bot mode
 user_name = str(input("Enter your name or Bot if you want to enable Bot-mode: "))
 if user_name == "Bot" or user_name == "bot" or user_name == "b":
     bot_mode = True
@@ -23,13 +15,8 @@ if user_name == "Bot" or user_name == "bot" or user_name == "b":
 else:
     bot_mode = False
 
-# Stores all the guessed numbers for display when the game is finished
 used_numbers = []
-
-# Sets the 'win condition'. Used in the while loop below
 win = False
-
-# Variable for random bot guess
 bot_guess = random.randint(1, 100)
 
 # Starting values for the bot guess range

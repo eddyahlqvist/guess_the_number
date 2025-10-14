@@ -5,6 +5,24 @@ import random
 import time
 import sys
 
+def menu():
+    while True:
+        print("Menu")
+        print("1. Play game")
+        print("2. Bot play")
+        print("3. Quit")
+
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            print("Play")
+        elif choice == "2":
+            print("Bot")
+        else:
+            print("Goodbye!")
+            break
+
+
 random_number = random.randint(1, 100)
 tries = 0
 
@@ -90,3 +108,6 @@ while not win:
 # f = open("highscore.txt", "r")
 # print(f.read())
 # f.close()
+
+if __name__ == "__main__":
+    menu()

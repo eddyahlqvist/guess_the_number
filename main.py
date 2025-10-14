@@ -9,7 +9,7 @@ random_number = random.randint(1, 100)
 tries = 0
 
 user_name = str(input("Enter your name or Bot if you want to enable Bot-mode: "))
-if user_name == "Bot" or user_name == "bot" or user_name == "b":
+if user_name in {"Bot", "bot"}:
     bot_mode = True
     tries += 1
 else:
@@ -25,7 +25,7 @@ low_num = 1
 
 # Below while loop is all about the bot
 while bot_mode:
-    print("--==<< Bot mode >>==-- \nBot is now guessing on a number between " + str(low_num) + " and " + str(high_num))
+    print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
     used_numbers.append(bot_guess)
     print("Guessing", end='')
     sys.stdout.flush()
@@ -36,9 +36,9 @@ while bot_mode:
     time.sleep(1)
     print(str(bot_guess))
     if bot_guess == random_number:
-        print("Congratulations " + user_name + "! " + str(random_number) + " was the correct number :)")
+        print(f"Congratulations {user_name}! {random_number} was the correct number.")
         if tries > 1:
-            print("You guessed " + str(tries) + " times on the following numbers: " + str(used_numbers))
+            print(f"You guessed {tries} times on the following numbers: {used_numbers}")
         else:
             print("OMG FIRST TRY! Cheating bots everywhere...")
         bot_mode = False
@@ -70,9 +70,9 @@ while not win:
         print("Incorrect input. Please try again.")
         continue
     if guess == random_number:
-        print("Congratulations " + user_name + "! " + str(random_number) + " was the correct number :)")
+        print(f"Congratulations {user_name}! {random_number} was the correct number.")
         if tries > 1:
-            print("You guessed " + str(tries) + " times on the following numbers: " + str(used_numbers))
+            print(f"You guessed {tries} times on the following numbers: {used_numbers}")
         else:
             print("OMG FIRST TRY! YOU ARE AMAZING!!!")
         win = True

@@ -6,6 +6,7 @@ import time
 import sys
 
 def menu():
+    difficulty = None
     while True:
         print("Menu")
         print("1. Play game")
@@ -13,14 +14,37 @@ def menu():
         print("3. Quit")
         choice = input("Choose an option: ")
         if choice == "1":
-            play_game()
+            difficulty = set_difficulty()
+            if difficulty:
+                play_game(difficulty)
         elif choice == "2":
-            bot_soloplay()
-        else:
+            bot_soloplay(difficulty)
+        elif choice == "3":
             print("Goodbye!")
             break
+        else:
+            print("Please enter 1, 2, or 3: ")
 
-def play_game():
+def set_difficulty():
+    while True:
+        print("Difficulty Settings (will also affect bot behavior)")
+        print("1. Easy (0–50)")
+        print("2. Medium (0–100)")
+        print("3. Hard (0–1000)")
+        print("4. Back to menu")
+        inp = input("Choose difficulty: ")
+        if inp == "1":
+            return "easy"
+        elif inp == "2":
+            return "medium"
+        elif inp == "3":
+            return "hard"
+        elif inp == "4":
+            return None
+        else:
+            print("Invalid choice, try again.")
+
+def play_game(difficulty):
     random_number = random.randint(1, 100)
     used_numbers = []
     tries = 0
@@ -51,7 +75,7 @@ def play_game():
         else:
             print("To high, try again")
 
-def bot_soloplay():
+def bot_soloplay(difficulty):
     random_number = random.randint(1, 100)
     used_numbers = []
     tries = 0

@@ -34,28 +34,28 @@ def set_difficulty():
         print("4. Back to menu")
         inp = input("Choose difficulty: ")
         if inp == "1":
-            return "easy"
+            return {'name': 'easy', 'range': 50}
         elif inp == "2":
-            return "medium"
+            return {'name': 'medium', 'range': 100}
         elif inp == "3":
-            return "hard"
+            return {'name': 'hard', 'range': 1000}
         elif inp == "4":
             return None
         else:
             print("Invalid choice, try again.")
 
 def play_game(difficulty):
-    random_number = random.randint(1, 100)
+    random_number = random.randint(1, difficulty['range'])
     used_numbers = []
     tries = 0
     user_name = input("Enter your name: ")
-
+    print(f"Game is on! {user_name} is playing on {difficulty['name']} difficulty.")
     while True:
         try:
-            guess = int(input("Guess on a number between 1 and 100: "))
+            guess = int(input(f"Guess on a number between 1 and {difficulty['range']}: "))
             tries += 1
             used_numbers.append(guess)
-            if guess > 100 or guess < 1:
+            if guess > difficulty['range'] or guess < 1:
                 tries -= 1
                 used_numbers.pop()
                 raise ValueError
@@ -65,7 +65,8 @@ def play_game(difficulty):
         if guess == random_number:
             print(f"Congratulations {user_name}! {random_number} was the correct number.")
             if tries > 1:
-                print(f"You guessed {tries} times on the following numbers: {used_numbers}")
+                print(f"You guessed {tries} times on the following numbers: "
+                      f"\n{used_numbers} on {difficulty['name']} difficulty.")
             else:
                 print("Very impressive! You beat the game on the first try! ")
             break

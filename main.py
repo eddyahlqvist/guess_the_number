@@ -5,8 +5,9 @@ import random
 import time
 import sys
 
+DIFF_SETTINGS = {'easy': 50,'medium': 100,'hard': 1000}
+
 def menu():
-    difficulty = None
     while True:
         print("Menu")
         print("1. Play game")
@@ -18,7 +19,9 @@ def menu():
             if difficulty:
                 play_game(difficulty)
         elif choice == "2":
-            bot_soloplay(difficulty)
+            difficulty = set_difficulty()
+            if difficulty:
+                bot_soloplay(difficulty)
         elif choice == "3":
             print("Goodbye!")
             break
@@ -28,17 +31,17 @@ def menu():
 def set_difficulty():
     while True:
         print("Difficulty Settings (will also affect bot behavior)")
-        print("1. Easy (0–50)")
-        print("2. Medium (0–100)")
-        print("3. Hard (0–1000)")
+        print(f"1. Easy (0–{DIFF_SETTINGS['easy']})")
+        print(f"2. Medium (0–{DIFF_SETTINGS['medium']})")
+        print(f"3. Hard (0–{DIFF_SETTINGS['hard']})")
         print("4. Back to menu")
         inp = input("Choose difficulty: ")
         if inp == "1":
-            return {'name': 'easy', 'range': 50}
+            return {'name': 'easy', 'range': DIFF_SETTINGS['easy']}
         elif inp == "2":
-            return {'name': 'medium', 'range': 100}
+            return {'name': 'medium', 'range': DIFF_SETTINGS['medium']}
         elif inp == "3":
-            return {'name': 'hard', 'range': 1000}
+            return {'name': 'hard', 'range': DIFF_SETTINGS['hard']}
         elif inp == "4":
             return None
         else:
@@ -77,22 +80,19 @@ def play_game(difficulty):
             print("To high, try again")
 
 def bot_soloplay(difficulty):
-    random_number = random.randint(1, 100)
+    random_number = random.randint(1, difficulty['range'])
     used_numbers = []
     tries = 0
     user_name = "Bot"
-    tries += 1
-    bot_guess = random.randint(1, 100)
+    bot_guess = random.randint(1, difficulty['range'])
 
     # Starting values for the bot guess range
-    high_num = 100
+    high_num = difficulty['range']
     low_num = 1
+    print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
 
     while True:
-        if low_num + 1 == high_num - 1: # to avoid message like guessing between 49 and 49
-            print(f"--==<< Bot mode >>==-- \nBot is smiling from ear to ear when placing its final guess!")
-        else:
-            print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
+        tries += 1
         used_numbers.append(bot_guess)
         print("Guessing", end='')
         sys.stdout.flush()
@@ -114,15 +114,24 @@ def bot_soloplay(difficulty):
             low_num = bot_guess + 1
             time.sleep(1.5)
             bot_guess = random.randint(bot_guess + 1, high_num)
-            print("To low, try again")
-            tries += 1
+            if low_num >= high_num:
+                print("--==<< Bot mode >>==-- \nBot is smiling from ear to ear when placing its final guess!")
+                bot_guess = high_num
+                continue
+            else:
+                print("To low, try again")
+                print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
         else:
             high_num = bot_guess - 1
             time.sleep(1.5)
             bot_guess = random.randint(low_num, bot_guess - 1)
-            print("To high, try again")
-            tries += 1
-
+            if low_num >= high_num:
+                print("--==<< Bot mode >>==-- \nBot is smiling from ear to ear when placing its final guess!")
+                bot_guess = high_num
+                continue
+            else:
+                print("To high, try again")
+                print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
 
 # Below is High Score stuff
 

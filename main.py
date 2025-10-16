@@ -5,7 +5,8 @@ import random
 import time
 import sys
 
-DIFF_SETTINGS = {'easy': 50,'medium': 100,'hard': 1000}
+DIFFICULTY_SETTINGS = {'easy': 50,'medium': 100,'hard': 1000}
+GAME_STATE: dict[str, str | int | None] = {'user_name': None, 'score': 0}    # score not yet added
 
 def menu():
     while True:
@@ -31,17 +32,17 @@ def menu():
 def set_difficulty():
     while True:
         print("Difficulty Settings (will also affect bot behavior)")
-        print(f"1. Easy (0–{DIFF_SETTINGS['easy']})")
-        print(f"2. Medium (0–{DIFF_SETTINGS['medium']})")
-        print(f"3. Hard (0–{DIFF_SETTINGS['hard']})")
+        print(f"1. Easy (0–{DIFFICULTY_SETTINGS['easy']})")
+        print(f"2. Medium (0–{DIFFICULTY_SETTINGS['medium']})")
+        print(f"3. Hard (0–{DIFFICULTY_SETTINGS['hard']})")
         print("4. Back to menu")
         inp = input("Choose difficulty: ")
         if inp == "1":
-            return {'name': 'easy', 'range': DIFF_SETTINGS['easy']}
+            return {'name': 'easy', 'range': DIFFICULTY_SETTINGS['easy']}
         elif inp == "2":
-            return {'name': 'medium', 'range': DIFF_SETTINGS['medium']}
+            return {'name': 'medium', 'range': DIFFICULTY_SETTINGS['medium']}
         elif inp == "3":
-            return {'name': 'hard', 'range': DIFF_SETTINGS['hard']}
+            return {'name': 'hard', 'range': DIFFICULTY_SETTINGS['hard']}
         elif inp == "4":
             return None
         else:
@@ -51,8 +52,12 @@ def play_game(difficulty):
     random_number = random.randint(1, difficulty['range'])
     used_numbers = []
     tries = 0
-    user_name = input("Enter your name: ")
-    print(f"Game is on! {user_name} is playing on {difficulty['name']} difficulty.")
+    global GAME_STATE
+    if GAME_STATE['user_name'] is None:
+        GAME_STATE['user_name'] = input("Enter your name: ")
+        print(f"Game is on! {GAME_STATE['user_name']} is playing on {difficulty['name']} difficulty.")
+    else:
+        print(f"Welcome back {GAME_STATE['user_name']}!")
     while True:
         try:
             guess = int(input(f"Guess on a number between 1 and {difficulty['range']}: "))
@@ -66,7 +71,7 @@ def play_game(difficulty):
             print("Incorrect input. Please try again.")
             continue
         if guess == random_number:
-            print(f"Congratulations {user_name}! {random_number} was the correct number.")
+            print(f"Congratulations {GAME_STATE['user_name']}! {random_number} was the correct number.")
             if tries > 1:
                 print(f"You guessed {tries} times on the following numbers: "
                       f"\n{used_numbers} on {difficulty['name']} difficulty.")

@@ -1,6 +1,7 @@
 # Coded by Eddy Ahlqvist - 2020
 # Modified in 2025 for learning purposes
 
+import requests
 import random
 import time
 import sys
@@ -88,13 +89,14 @@ def bot_soloplay(difficulty):
     random_number = random.randint(1, difficulty['range'])
     used_numbers = []
     tries = 0
-    user_name = "Bot"
+    bot_name = get_bot_name()
     bot_guess = random.randint(1, difficulty['range'])
 
     # Starting values for the bot guess range
     high_num = difficulty['range']
     low_num = 1
-    print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
+    print(f"{bot_name} has joined the session.")
+    print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
 
     while True:
         tries += 1
@@ -109,34 +111,47 @@ def bot_soloplay(difficulty):
         print(str(bot_guess))
 
         if bot_guess == random_number:
-            print(f"Congratulations {user_name}! {random_number} was the correct number.")
+            print(f"Congratulations {bot_name}! {random_number} was the correct number.")
             if tries > 1:
-                print(f"The bot guessed {tries} times on the following numbers: {used_numbers}")
+                print(f"{bot_name} guessed {tries} times on the following numbers: {used_numbers}")
             else:
-                print("Unbelievable! The bot beat the game on its first try! ")
+                print(f"Unbelievable! {bot_name} beat the game on the first try!")
             break
         elif bot_guess < random_number:
             low_num = bot_guess + 1
             time.sleep(1.5)
             bot_guess = random.randint(bot_guess + 1, high_num)
             if low_num >= high_num:
-                print("--==<< Bot mode >>==-- \nBot is smiling from ear to ear when placing its final guess!")
+                print(f"--==<< Bot mode >>==-- \n{bot_name} is smiling from ear to ear when placing the final guess!")
                 bot_guess = high_num
                 continue
             else:
-                print("To low, try again")
-                print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
+                print("Too low, try again")
+                print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
         else:
             high_num = bot_guess - 1
             time.sleep(1.5)
             bot_guess = random.randint(low_num, bot_guess - 1)
             if low_num >= high_num:
-                print("--==<< Bot mode >>==-- \nBot is smiling from ear to ear when placing its final guess!")
+                print(f"--==<< Bot mode >>==-- \n{bot_name} is smiling from ear to ear when placing the final guess!")
                 bot_guess = high_num
                 continue
             else:
-                print("To high, try again")
-                print(f"--==<< Bot mode >>==-- \nBot is now guessing on a number between {low_num} and {high_num}")
+                print("Too high, try again")
+                print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
+
+def get_bot_name():
+    try:
+        response = requests.get("https://randomuser.me/api/?inc=name&noinfo", timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        user_data = data["results"][0]["name"]
+        bot_name = f"{user_data['title'].capitalize()} {user_data['last'].capitalize()}"
+    except (requests.RequestException, KeyError, IndexError, ValueError):
+        # fallback name list
+        fallback_names = ["HarryBotter", "Glitch", "404", "Mr. Logic", "Mr. Botastic"]
+        bot_name = random.choice(fallback_names)
+    return bot_name
 
 # Below is High Score stuff
 

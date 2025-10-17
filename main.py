@@ -14,7 +14,9 @@ def menu():
         print("Menu")
         print("1. Play game")
         print("2. Bot play")
-        print("3. Quit")
+        if GAME_STATE['user_name'] is not None:
+            print("3. Change name")
+        print("q. Quit")
         choice = input("Choose an option: ")
         if choice == "1":
             difficulty = set_difficulty()
@@ -24,11 +26,18 @@ def menu():
             difficulty = set_difficulty()
             if difficulty:
                 bot_soloplay(difficulty)
-        elif choice == "3":
+        elif GAME_STATE['user_name'] is not None and choice == "3":
+            old_name = GAME_STATE['user_name']
+            GAME_STATE['user_name'] = input("Enter your new name: ")
+            print(f"{old_name} has left the building! You will now be known as {GAME_STATE['user_name']} instead.")
+        elif choice.lower().strip() in ("q", "quit", "exit"):
             print("Goodbye!")
             break
         else:
-            print("Please enter 1, 2, or 3: ")
+            if GAME_STATE['user_name'] is not None:
+                print("Please enter 1, 2, 3, or 'q' to quit: ")
+            else:
+                print("Please enter 1, 2, or 'q' to quit: ")
 
 def set_difficulty():
     while True:

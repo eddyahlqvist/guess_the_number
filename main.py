@@ -7,12 +7,12 @@ import time
 import sys
 
 DIFFICULTY_SETTINGS = {'easy': 50,'medium': 100,'hard': 1000}
-GAME_STATE: dict[str, str | int | None] = {'user_name': None, 'score': 0}    # score not yet added
 
 def menu():
+    state: dict[str, str | int | None] = {'user_name': None, 'score': 0} # score not yet added
     while True:
         options = {"1": "Play game", "2": "Bot play"}
-        if GAME_STATE['user_name'] is not None:
+        if state['user_name'] is not None:
             options["3"] = "Change name"
         options["q"] = "Quit"
 
@@ -25,16 +25,17 @@ def menu():
         if choice in ("1", "2"):
             difficulty = set_difficulty()
             if difficulty:
-                (play_game if choice == "1" else bot_soloplay)(difficulty)
-        elif GAME_STATE['user_name'] is not None and choice == "3":
-            old_name = GAME_STATE['user_name']
+                action = play_game if choice == "1" else bot_soloplay
+                state = action(difficulty, state)
+        elif state['user_name'] is not None and choice == "3":
+            old_name = state['user_name']
             new_name = input("Enter your new name: ").strip()
             if not new_name:
                 print("Name can't be empty. Keeping current name.")
             elif new_name == old_name:
                 print("That's already your name.")
             else:
-                GAME_STATE['user_name'] = new_name
+                state['user_name'] = new_name
                 print(f"{old_name} has left the building! You will now be known as {new_name} instead.")
         elif choice in ("q", "quit", "exit"):
             print("Goodbye!")
@@ -46,9 +47,9 @@ def menu():
 def set_difficulty():
     while True:
         print("Difficulty Settings (will also affect bot behavior)")
-        print(f"1. Easy (0–{DIFFICULTY_SETTINGS['easy']})")
-        print(f"2. Medium (0–{DIFFICULTY_SETTINGS['medium']})")
-        print(f"3. Hard (0–{DIFFICULTY_SETTINGS['hard']})")
+        print(f"1. Easy (1–{DIFFICULTY_SETTINGS['easy']})")
+        print(f"2. Medium (1–{DIFFICULTY_SETTINGS['medium']})")
+        print(f"3. Hard (1–{DIFFICULTY_SETTINGS['hard']})")
         print("4. Back to menu")
         inp = input("Choose difficulty: ")
         if inp == "1":
@@ -62,16 +63,12 @@ def set_difficulty():
         else:
             print("Invalid choice, try again.")
 
-def play_game(difficulty):
+def play_game(difficulty: dict[str, int | str], state: dict[str, str | int | None]) -> dict[str, str | int | None]:
     random_number = random.randint(1, difficulty['range'])
     used_numbers = []
     tries = 0
-    global GAME_STATE
-    if GAME_STATE['user_name'] is None:
-        GAME_STATE['user_name'] = input("Enter your name: ")
-        print(f"Game is on! {GAME_STATE['user_name']} is playing on {difficulty['name']} difficulty.")
-    else:
-        print(f"Welcome back {GAME_STATE['user_name']}!")
+    state = ensure_user_name(state)
+    print(f"Game is on! {state['user_name']} is playing on {difficulty['name']} difficulty.")
     while True:
         try:
             guess = int(input(f"Guess on a number between 1 and {difficulty['range']}: "))
@@ -85,7 +82,7 @@ def play_game(difficulty):
             print("Incorrect input. Please try again.")
             continue
         if guess == random_number:
-            print(f"Congratulations {GAME_STATE['user_name']}! {random_number} was the correct number.")
+            print(f"Congratulations {state['user_name']}! {random_number} was the correct number.")
             if tries > 1:
                 print(f"You guessed {tries} times on the following numbers: "
                       f"\n{used_numbers} on {difficulty['name']} difficulty.")
@@ -94,11 +91,12 @@ def play_game(difficulty):
             break
 
         elif guess < random_number:
-            print("To low, try again")
+            print("Too low, try again")
         else:
-            print("To high, try again")
+            print("Too high, try again")
+    return state
 
-def bot_soloplay(difficulty):
+def bot_soloplay(difficulty, state):
     random_number = random.randint(1, difficulty['range'])
     used_numbers = []
     tries = 0
@@ -150,6 +148,15 @@ def bot_soloplay(difficulty):
         else:
             print(f"Too {direction}, try again")
             print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
+    return state
+
+def ensure_user_name(state):
+    if state['user_name'] is None:
+        state['user_name'] = input("Enter your name: ").strip()
+        print(f"Welcome, {state['user_name']}!")
+    else:
+        print(f"Welcome back, {state['user_name']}!")
+    return state
 
 def get_bot_name():
     try:
@@ -164,6 +171,11 @@ def get_bot_name():
         bot_name = random.choice(fallback_names)
     return bot_name
 
+
+if __name__ == "__main__":
+    menu()
+
+# All this below is from 2020 and will be reworked
 # Below is High Score stuff
 
 # f = open("highscore.txt", "a")
@@ -173,6 +185,3 @@ def get_bot_name():
 # f = open("highscore.txt", "r")
 # print(f.read())
 # f.close()
-
-if __name__ == "__main__":
-    menu()

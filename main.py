@@ -110,35 +110,33 @@ def bot_soloplay(difficulty):
         time.sleep(1)
         print(str(bot_guess))
 
-        if bot_guess == random_number:
+        if bot_guess < random_number:
+            direction = "low"
+            low_num = bot_guess + 1
+        elif bot_guess > random_number:
+            direction = "high"
+            high_num = bot_guess - 1
+        else:
             print(f"Congratulations {bot_name}! {random_number} was the correct number.")
             if tries > 1:
                 print(f"{bot_name} guessed {tries} times on the following numbers: {used_numbers}")
             else:
                 print(f"Unbelievable! {bot_name} beat the game on the first try!")
             break
-        elif bot_guess < random_number:
-            low_num = bot_guess + 1
-            time.sleep(1.5)
-            bot_guess = random.randint(bot_guess + 1, high_num)
-            if low_num >= high_num:
-                print(f"--==<< Bot mode >>==-- \n{bot_name} is smiling from ear to ear when placing the final guess!")
-                bot_guess = high_num
-                continue
-            else:
-                print("Too low, try again")
-                print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
+
+        time.sleep(1.5)
+        bot_guess = random.randint(low_num, high_num)
+
+        # Shared feedback logic
+        if low_num >= high_num:
+            print(f"--==<< Bot mode >>==-- \n{bot_name} is smiling from ear to ear when placing the final guess!")
+            bot_guess = high_num
+            continue
+        elif high_num - low_num == 1:
+            print(f"--==<< Bot mode >>==-- \n{bot_name} has narrowed it down to either {low_num} or {high_num}!")
         else:
-            high_num = bot_guess - 1
-            time.sleep(1.5)
-            bot_guess = random.randint(low_num, bot_guess - 1)
-            if low_num >= high_num:
-                print(f"--==<< Bot mode >>==-- \n{bot_name} is smiling from ear to ear when placing the final guess!")
-                bot_guess = high_num
-                continue
-            else:
-                print("Too high, try again")
-                print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
+            print(f"Too {direction}, try again")
+            print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
 
 def get_bot_name():
     try:

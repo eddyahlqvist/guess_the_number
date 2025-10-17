@@ -11,33 +11,37 @@ GAME_STATE: dict[str, str | int | None] = {'user_name': None, 'score': 0}    # s
 
 def menu():
     while True:
-        print("Menu")
-        print("1. Play game")
-        print("2. Bot play")
+        options = {"1": "Play game", "2": "Bot play"}
         if GAME_STATE['user_name'] is not None:
-            print("3. Change name")
-        print("q. Quit")
-        choice = input("Choose an option: ")
-        if choice == "1":
+            options["3"] = "Change name"
+        options["q"] = "Quit"
+
+        print("Menu")
+        for key, label in options.items():
+            print(f"{key}. {label}")
+
+        choice = input("Choose an option: ").strip().lower()
+
+        if choice in ("1", "2"):
             difficulty = set_difficulty()
             if difficulty:
-                play_game(difficulty)
-        elif choice == "2":
-            difficulty = set_difficulty()
-            if difficulty:
-                bot_soloplay(difficulty)
+                (play_game if choice == "1" else bot_soloplay)(difficulty)
         elif GAME_STATE['user_name'] is not None and choice == "3":
             old_name = GAME_STATE['user_name']
-            GAME_STATE['user_name'] = input("Enter your new name: ")
-            print(f"{old_name} has left the building! You will now be known as {GAME_STATE['user_name']} instead.")
-        elif choice.lower().strip() in ("q", "quit", "exit"):
+            new_name = input("Enter your new name: ").strip()
+            if not new_name:
+                print("Name can't be empty. Keeping current name.")
+            elif new_name == old_name:
+                print("That's already your name.")
+            else:
+                GAME_STATE['user_name'] = new_name
+                print(f"{old_name} has left the building! You will now be known as {new_name} instead.")
+        elif choice in ("q", "quit", "exit"):
             print("Goodbye!")
             break
         else:
-            if GAME_STATE['user_name'] is not None:
-                print("Please enter 1, 2, 3, or 'q' to quit: ")
-            else:
-                print("Please enter 1, 2, or 'q' to quit: ")
+            visible_nums = ", ".join(key for key in options if key.isdigit())
+            print(f"Please enter {visible_nums}, or 'q' to quit.")
 
 def set_difficulty():
     while True:

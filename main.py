@@ -105,7 +105,7 @@ class GuessTheNumberGame:
 
             if bot_menu_choice == "1":
                 difficulty_range = self.set_range()
-                random_bot_settings = self.random_bot_settings()
+                random_bot_settings = self.select_bot_skill()
                 print("Inviting a random bot ", end='')
                 sys.stdout.flush()
                 for i in range(3):
@@ -176,7 +176,7 @@ class GuessTheNumberGame:
                 print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
 
     @staticmethod
-    def random_bot_settings():
+    def select_bot_skill():
         while True:
             print("\nBot settings: ")
             print(f"1. Novice")

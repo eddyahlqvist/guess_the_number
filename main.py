@@ -8,7 +8,7 @@ import sys
 
 
 class GuessTheNumberGame:
-    DIFFICULTY_SETTINGS = {'easy': 50, 'medium': 100, 'hard': 1000}
+    RANGE_SETTINGS = {'easy': 50, 'medium': 100, 'hard': 1000}
 
     def __init__(self):
         self.user_name: str | None = None
@@ -16,10 +16,10 @@ class GuessTheNumberGame:
 
     def menu(self):
         while True:
-            options = {"1": "Play game", "2": "Bot play"}
+            options = {'1': 'Play game', '2': 'Bot play'}
             if self.user_name is not None:
-                options["3"] = "Change name"
-            options["q"] = "Quit"
+                options['3'] = 'Change name'
+            options['q'] = 'Quit'
 
             print("\nMenu")
             for key, label in options.items():
@@ -28,11 +28,11 @@ class GuessTheNumberGame:
             choice = input("Choose an option: ").strip().lower()
 
             if choice in ("1", "2"):
-                difficulty = self.set_difficulty()
+                difficulty_range = self.set_range()
                 if choice == "1":
-                    self.play_game(difficulty)
+                    self.play_game(difficulty_range)
                 else:
-                    self.bot_soloplay(difficulty)
+                    self.bot_soloplay(difficulty_range)
             elif self.user_name and choice == "3":
                 self.change_name()
             elif choice in ("q", "quit", "exit"):
@@ -42,37 +42,37 @@ class GuessTheNumberGame:
                 visible_nums = ", ".join(key for key in options if key.isdigit())
                 print(f"Please enter {visible_nums}, or 'q' to quit.")
 
-    def set_difficulty(self):
+    def set_range(self):
         while True:
-            print("\nDifficulty Settings (will also affect bot behavior)")
-            print(f"1. Easy (1–{self.DIFFICULTY_SETTINGS['easy']})")
-            print(f"2. Medium (1–{self.DIFFICULTY_SETTINGS['medium']})")
-            print(f"3. Hard (1–{self.DIFFICULTY_SETTINGS['hard']})")
+            print("\nRange difficulty settings: ")
+            print(f"1. Easy (1–{self.RANGE_SETTINGS['easy']})")
+            print(f"2. Medium (1–{self.RANGE_SETTINGS['medium']})")
+            print(f"3. Hard (1–{self.RANGE_SETTINGS['hard']})")
             print("4. Back to menu")
-            inp = input("Choose difficulty: ")
+            inp = input("Choose range difficulty: ")
             if inp == "1":
-                return {'name': 'easy', 'range': self.DIFFICULTY_SETTINGS['easy']}
+                return {'name': 'easy', 'range': self.RANGE_SETTINGS['easy']}
             elif inp == "2":
-                return {'name': 'medium', 'range': self.DIFFICULTY_SETTINGS['medium']}
+                return {'name': 'medium', 'range': self.RANGE_SETTINGS['medium']}
             elif inp == "3":
-                return {'name': 'hard', 'range': self.DIFFICULTY_SETTINGS['hard']}
+                return {'name': 'hard', 'range': self.RANGE_SETTINGS['hard']}
             elif inp == "4":
                 return None
             else:
                 print("Invalid choice, try again.")
 
-    def play_game(self, difficulty: dict[str, int | str]) -> None:
-        random_number = random.randint(1, difficulty['range'])
+    def play_game(self, difficulty_range: dict[str, int | str]) -> None:
+        random_number = random.randint(1, difficulty_range['range'])
         used_numbers = []
         tries = 0
         self.ensure_user_name()
-        print(f"Game is on! {self.user_name} is playing on {difficulty['name']} difficulty.")
+        print(f"Game is on! {self.user_name} is playing on {difficulty_range['name']} difficulty.")
         while True:
             try:
-                guess = int(input(f"Guess on a number between 1 and {difficulty['range']}: "))
+                guess = int(input(f"Guess on a number between 1 and {difficulty_range['range']}: "))
                 tries += 1
                 used_numbers.append(guess)
-                if guess > difficulty['range'] or guess < 1:
+                if guess > difficulty_range['range'] or guess < 1:
                     tries -= 1
                     used_numbers.pop()
                     raise ValueError
@@ -83,7 +83,7 @@ class GuessTheNumberGame:
                 print(f"Congratulations {self.user_name}! {random_number} was the correct number.")
                 if tries > 1:
                     print(f"You guessed {tries} times on the following numbers: "
-                          f"\n{used_numbers} on {difficulty['name']} difficulty.")
+                          f"\n{used_numbers} on {difficulty_range['name']} difficulty.")
                 else:
                     print("Very impressive! You beat the game on the first try! ")
                 break
@@ -92,17 +92,37 @@ class GuessTheNumberGame:
             else:
                 self.print_feedback("high")
 
-    def bot_soloplay(self, difficulty):
-        random_number = random.randint(1, difficulty['range'])
+    def bot_soloplay(self, difficulty_range):
+        while True:
+            bot_menu_options = {'1': 'Random bots', '2': 'Special bots'}
+            print("\nBot menu")
+            for key, label in bot_menu_options.items():
+                print(f"{key}. {label}")
+
+            bot_menu_choice = input("Choose an option: ").strip().lower()
+
+            if bot_menu_choice == "1":
+                print("Inviting a random bot ", end='')
+                sys.stdout.flush()
+                for i in range(3):
+                    time.sleep(0.5)
+                    print(". ", end='')
+                    sys.stdout.flush()
+                time.sleep(1)
+                break
+            if bot_menu_choice == "2":
+                print("Not yet implemented")
+
+        random_number = random.randint(1, difficulty_range['range'])
         used_numbers = []
         tries = 0
         bot_name = self.get_bot_name()
-        bot_guess = random.randint(1, difficulty['range'])
+        bot_guess = random.randint(1, difficulty_range['range'])
 
         # Starting values for the bot guess range
-        high_num = difficulty['range']
+        high_num = difficulty_range['range']
         low_num = 1
-        print(f"{bot_name} has joined the session.")
+        print(f"\n{bot_name} has joined the session.")
         print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
 
         while True:

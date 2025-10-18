@@ -1,11 +1,11 @@
 # Coded by Eddy Ahlqvist - 2020
 # Modified in 2025 for learning purposes
+# main.py
 
-import requests
 import random
-import time
-import sys
 
+
+from bot import Bot
 
 class GuessTheNumberGame:
     RANGE_SETTINGS = {'easy': 50, 'medium': 100, 'hard': 1000}
@@ -103,38 +103,28 @@ class GuessTheNumberGame:
         if not difficulty_range:
             return  # user backed out
 
-        skill = self.select_bot_skill()
-        if not skill:
-            return  # user backed out
+        bot = Bot.create()
+        if bot is None:
+            return
 
         print("Inviting a random bot ", end='')
-        sys.stdout.flush()
-        for _ in range(3):
-            time.sleep(0.5)
-            print(". ", end='')
-            sys.stdout.flush()
-        time.sleep(1)
+        bot.thinking_animation()
 
         random_number = random.randint(1, difficulty_range['range'])
         used_numbers = []
         tries = 0
-        bot_name = self.get_bot_name()
         high_num = difficulty_range['range']
         low_num = 1
-        bot_guess = self.get_bot_guess(skill, low_num, high_num)
-        print(f"\n{bot_name} has joined the session.")
-        print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
+        bot_guess = bot.guess(low_num, high_num)
+
+        print(f"\n{bot.name} has joined the session.")
+        print(f"--==<< Bot mode >>==-- \n{bot.name} is now guessing on a number between {low_num} and {high_num}")
 
         while True:
             tries += 1
             used_numbers.append(bot_guess)
             print("Guessing ", end='')
-            sys.stdout.flush()
-            for _ in range(3):
-                time.sleep(0.5)
-                print(". ", end='')
-                sys.stdout.flush()
-            time.sleep(1)
+            bot.thinking_animation()
             print(str(bot_guess))
 
             if bot_guess < random_number:
@@ -144,26 +134,27 @@ class GuessTheNumberGame:
                 direction = "high"
                 high_num = bot_guess - 1
             else:
-                print(f"Congratulations {bot_name}! {random_number} was the correct number.")
+                print(f"Congratulations {bot.name}! {random_number} was the correct number.")
                 if tries > 1:
-                    print(f"{bot_name} guessed {tries} times on the following numbers: {used_numbers}")
+                    print(f"{bot.name} guessed {tries} times on the following numbers: {used_numbers}")
                 else:
-                    print(f"Unbelievable! {bot_name} beat the game on the first try!")
+                    print(f"Unbelievable! {bot.name} beat the game on the first try!")
                 break
 
-            time.sleep(1.5)
-            bot_guess = self.get_bot_guess(skill, low_num, high_num)
+
+            bot_guess = bot.guess(low_num, high_num)
 
             # Shared feedback logic
             if low_num >= high_num:
-                print(f"--==<< Bot mode >>==-- \n{bot_name} is smiling from ear to ear when placing the final guess!")
+                print(f"--==<< Bot mode >>==-- \n{bot.name} is smiling from ear to ear when placing the final guess!")
                 bot_guess = high_num
                 continue
             elif high_num - low_num == 1:
-                print(f"--==<< Bot mode >>==-- \n{bot_name} has narrowed it down to either {low_num} or {high_num}!")
+                print(f"--==<< Bot mode >>==-- \n{bot.name} has narrowed it down to either {low_num} or {high_num}!")
             else:
                 self.print_feedback(direction)
-                print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
+                print(f"--==<< Bot mode >>==-- \n{bot.name} is now guessing on a number between {low_num} and {high_num}")
+
 
     @staticmethod
     def show_bot_menu():
@@ -182,41 +173,6 @@ class GuessTheNumberGame:
             else:
                 print("Invalid choice, try again.")
 
-    @staticmethod
-    def select_bot_skill():
-        while True:
-            print("\nBot settings: ")
-            print(f"1. Novice")
-            print(f"2. Competent")
-            print(f"3. Expert")
-            print("4. Back to menu")
-            inp = input("Choose a skill level: ")
-            if inp == "1":
-                return "novice"
-            elif inp == "2":
-                return "competent"
-            elif inp == "3":
-                return "expert"
-            elif inp == "4":
-                return None
-            else:
-                print("Invalid choice, try again.")
-
-    @staticmethod
-    def get_bot_guess(skill: str, low_num: int, high_num: int) -> int | None:
-        """Decides next bot guess based on skill and range."""
-        if skill == "novice":
-            return random.randint(low_num, high_num)
-        elif skill == "competent":
-            mid = (low_num + high_num) // 2
-            range_size = high_num - low_num
-            max_dev = max(1, range_size // 10)
-            deviation = random.randint(-max_dev, max_dev)
-            return max(low_num, min(high_num, mid + deviation))
-        elif skill == "expert":
-            return (low_num + high_num) // 2
-        else:
-            return None
 
     def change_name(self):
         old_name = self.user_name
@@ -229,6 +185,7 @@ class GuessTheNumberGame:
             self.user_name = new_name
             print(f"{old_name} has left the building! You are now known as {new_name}.")
 
+
     def ensure_user_name(self):
         if self.user_name is None:
             self.user_name = input("Enter your name: ").strip()
@@ -236,6 +193,7 @@ class GuessTheNumberGame:
         else:
             print(f"Welcome back, {self.user_name}!")
         return self.user_name
+
 
     @staticmethod
     def print_feedback(direction: str):
@@ -247,19 +205,6 @@ class GuessTheNumberGame:
         else:
             print(direction)  # fallback for unexpected usage
 
-    @staticmethod
-    def get_bot_name():
-        try:
-            response = requests.get("https://randomuser.me/api/?inc=name&noinfo", timeout=5)
-            response.raise_for_status()
-            data = response.json()
-            user_data = data["results"][0]["name"]
-            bot_name = f"{user_data['title'].capitalize()} {user_data['last'].capitalize()}"
-        except (requests.RequestException, KeyError, IndexError, ValueError):
-            # fallback name list
-            fallback_names = ["HarryBotter", "Glitch", "404", "Mr. Logic", "Mr. Botastic"]
-            bot_name = random.choice(fallback_names)
-        return bot_name
 
 if __name__ == "__main__":
     game = GuessTheNumberGame()

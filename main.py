@@ -87,11 +87,10 @@ class GuessTheNumberGame:
                 else:
                     print("Very impressive! You beat the game on the first try! ")
                 break
-
             elif guess < random_number:
-                print("Too low, try again")
+                self.print_feedback("low")
             else:
-                print("Too high, try again")
+                self.print_feedback("high")
 
     def bot_soloplay(self, difficulty):
         random_number = random.randint(1, difficulty['range'])
@@ -143,7 +142,7 @@ class GuessTheNumberGame:
             elif high_num - low_num == 1:
                 print(f"--==<< Bot mode >>==-- \n{bot_name} has narrowed it down to either {low_num} or {high_num}!")
             else:
-                print(f"Too {direction}, try again.")
+                self.print_feedback(direction)
                 print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
 
     def change_name(self):
@@ -164,6 +163,16 @@ class GuessTheNumberGame:
         else:
             print(f"Welcome back, {self.user_name}!")
         return self.user_name
+
+    @staticmethod
+    def print_feedback(direction: str):
+        """Prints a feedback message based on guess direction."""
+        if direction == "low":
+            print("Too low, try again.")
+        elif direction == "high":
+            print("Too high, try again.")
+        else:
+            print(direction)  # fallback for unexpected usage
 
     @staticmethod
     def get_bot_name():

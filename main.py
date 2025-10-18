@@ -12,7 +12,7 @@ class GuessTheNumberGame:
 
     def __init__(self):
         self.user_name: str | None = None
-        self.score: int = 0
+        self.score: int = 0 # score not yet implemented
 
     def menu(self):
         while True:
@@ -27,12 +27,14 @@ class GuessTheNumberGame:
 
             choice = input("Choose an option: ").strip().lower()
 
-            if choice in ("1", "2"):
+            if choice == "1":
                 difficulty_range = self.set_range()
-                if choice == "1":
+                if difficulty_range:
                     self.play_game(difficulty_range)
                 else:
-                    self.bot_soloplay(difficulty_range)
+                    continue
+            elif choice == "2":
+                self.bot_soloplay()
             elif self.user_name and choice == "3":
                 self.change_name()
             elif choice in ("q", "quit", "exit"):
@@ -92,9 +94,9 @@ class GuessTheNumberGame:
             else:
                 self.print_feedback("high")
 
-    def bot_soloplay(self, difficulty_range):
+    def bot_soloplay(self):
         while True:
-            bot_menu_options = {'1': 'Random bots', '2': 'Special bots'}
+            bot_menu_options = {'1': 'Random bots', '2': 'Special bots', '3': 'Back to main menu'}
             print("\nBot menu")
             for key, label in bot_menu_options.items():
                 print(f"{key}. {label}")
@@ -102,6 +104,8 @@ class GuessTheNumberGame:
             bot_menu_choice = input("Choose an option: ").strip().lower()
 
             if bot_menu_choice == "1":
+                difficulty_range = self.set_range()
+                random_bot_settings = self.random_bot_settings()
                 print("Inviting a random bot ", end='')
                 sys.stdout.flush()
                 for i in range(3):
@@ -110,18 +114,34 @@ class GuessTheNumberGame:
                     sys.stdout.flush()
                 time.sleep(1)
                 break
-            if bot_menu_choice == "2":
+            elif bot_menu_choice == "2":
                 print("Not yet implemented")
+            elif bot_menu_choice == "3":
+                return
+            else:
+                print("Invalid choice, try again.")
 
         random_number = random.randint(1, difficulty_range['range'])
         used_numbers = []
         tries = 0
         bot_name = self.get_bot_name()
-        bot_guess = random.randint(1, difficulty_range['range'])
 
         # Starting values for the bot guess range
         high_num = difficulty_range['range']
         low_num = 1
+
+        if random_bot_settings == "novice":
+            bot_guess = random.randint(1, difficulty_range['range'])
+        elif random_bot_settings == "competent":
+            mid = (low_num + high_num) // 2
+            range_size = high_num - low_num
+            max_dev = max(1, range_size // 10)  # up to ±10% of current range
+            deviation = random.randint(-max_dev, max_dev)
+            bot_guess = mid + deviation
+            bot_guess = max(low_num, min(high_num, bot_guess))
+        elif random_bot_settings == "expert":
+            bot_guess = (low_num + high_num) // 2
+
         print(f"\n{bot_name} has joined the session.")
         print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
 
@@ -152,7 +172,17 @@ class GuessTheNumberGame:
                 break
 
             time.sleep(1.5)
-            bot_guess = random.randint(low_num, high_num)
+            if random_bot_settings == "novice":
+                bot_guess = random.randint(low_num, high_num)
+            elif random_bot_settings == "competent":
+                mid = (low_num + high_num) // 2
+                range_size = high_num - low_num
+                max_dev = max(1, range_size // 10)  # up to ±10% of current range
+                deviation = random.randint(-max_dev, max_dev)
+                bot_guess = mid + deviation
+                bot_guess = max(low_num, min(high_num, bot_guess))
+            elif random_bot_settings == "expert":
+                bot_guess = (low_num + high_num) // 2
 
             # Shared feedback logic
             if low_num >= high_num:
@@ -164,6 +194,25 @@ class GuessTheNumberGame:
             else:
                 self.print_feedback(direction)
                 print(f"--==<< Bot mode >>==-- \n{bot_name} is now guessing on a number between {low_num} and {high_num}")
+
+    def random_bot_settings(self):
+        while True:
+            print("\nBot settings: ")
+            print(f"1. Novice")
+            print(f"2. Competent")
+            print(f"3. Expert")
+            print("4. Back to menu")
+            inp = input("Choose a skill level: ")
+            if inp == "1":
+                return "novice"
+            elif inp == "2":
+                return "competent"
+            elif inp == "3":
+                return "expert"
+            elif inp == "4":
+                return None
+            else:
+                print("Invalid choice, try again.")
 
     def change_name(self):
         old_name = self.user_name

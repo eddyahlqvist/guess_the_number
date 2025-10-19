@@ -22,23 +22,7 @@ class Bot:
 
     @staticmethod
     def select_skill():
-        while True:
-            print("\nBot skill settings: ")
-            print("1. Novice")
-            print("2. Competent")
-            print("3. Expert")
-            print("4. Back to menu")
-            inp = input("Choose a skill level: ")
-            if inp == "1":
-                return "novice"
-            elif inp == "2":
-                return "competent"
-            elif inp == "3":
-                return "expert"
-            elif inp == "4":
-                return None
-            else:
-                print("Invalid choice, try again.")
+        return random.choice(["novice", "competent", "expert"])
 
 
     @staticmethod
@@ -69,7 +53,7 @@ class Bot:
         else:
             raise ValueError(f"Unknown bot skill: {self.skill}")
 
-
+    # noinspection PyMethodMayBeStatic
     def thinking_animation(self):
         for _ in range(3):
             time.sleep(0.5)

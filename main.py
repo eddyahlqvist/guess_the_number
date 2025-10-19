@@ -117,7 +117,7 @@ class GuessTheNumberGame:
         low_num = 1
         bot_guess = bot.guess(low_num, high_num)
 
-        print(f"\n{bot.name} has joined the session.")
+        print(f"\n{bot.name} ({bot.skill.capitalize()} bot) has joined the session.")
         print(f"--==<< Bot mode >>==-- \n{bot.name} is now guessing on a number between {low_num} and {high_num}")
 
         while True:

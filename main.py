@@ -3,7 +3,7 @@
 # main.py
 
 import random
-
+import math
 
 from bot import Bot
 
@@ -12,7 +12,7 @@ class GuessTheNumberGame:
 
     def __init__(self):
         self.user_name: str | None = None
-        self.score: int = 0 # score not yet implemented
+        self.score: int = 0
 
     def menu(self):
         while True:
@@ -82,9 +82,14 @@ class GuessTheNumberGame:
                 print("Incorrect input. Please try again.")
                 continue
             if guess == random_number:
+                score, ideal = self.calculate_score(tries, difficulty_range['range'])
+                self.score = score
                 print(f"Congratulations {self.user_name}! {random_number} was the correct number.")
+                print(f"Ideal guesses: {ideal}")
+                print(f"Your guesses: {tries}")
+                print(f"Your score: {score}/{ideal * 2}")
                 if tries > 1:
-                    print(f"You guessed {tries} times on the following numbers: "
+                    print(f"You guessed on the following numbers: "
                           f"\n{used_numbers} on {difficulty_range['name']} difficulty.")
                 else:
                     print("Very impressive! You beat the game on the first try! ")
@@ -204,6 +209,12 @@ class GuessTheNumberGame:
             print("Too high, try again.")
         else:
             print(direction)  # fallback for unexpected usage
+
+
+    def calculate_score(self, tries: int, range_size: int) -> tuple[int, int]:
+        ideal = math.ceil(math.log2(range_size))
+        score = max(0, (ideal * 2) - tries)
+        return score, ideal
 
 
 if __name__ == "__main__":

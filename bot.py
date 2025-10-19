@@ -6,23 +6,15 @@ import time
 import sys
 
 class Bot:
-    def __init__(self, name: str | None, skill: str):
+    def __init__(self, name: str | None):
         self.name = name or self.generate_name()
-        self.skill = skill
+        self.skill = random.choice(["novice", "competent", "expert"])
 
 
     @classmethod
     def create(cls):
-        """Factory method to generate a bot with selected skill and random name."""
-        skill = cls.select_skill()  # Ask user for bot skill
-        if skill is None:
-            return None  # User backed out
-        return cls(None, skill)  # Create bot with random name
-
-
-    @staticmethod
-    def select_skill():
-        return random.choice(["novice", "competent", "expert"])
+        """Factory method to generate a bot with random name."""
+        return cls(None)  # Create bot with random name
 
 
     @staticmethod

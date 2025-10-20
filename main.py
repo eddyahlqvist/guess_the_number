@@ -14,54 +14,78 @@ class GuessTheNumberGame:
         self.user_name: str | None = None
         self.score: int = 0
 
+
     def menu(self):
         while True:
             options = {'1': 'Play game', '2': 'Bot play'}
             if self.user_name is not None:
                 options['3'] = 'Change name'
-            options['q'] = 'Quit'
 
             print("\nMenu")
             for key, label in options.items():
                 print(f"{key}. {label}")
+            print("q. Quit")
 
-            choice = input("Choose an option: ").strip().lower()
+            # Build list of valid choices dynamically
+            valid_choices = list(options.keys())
+
+            choice = self.get_choice("Choose an option: ", valid_choices)
+
+            if choice == "quit":
+                print("Goodbye!")
+                break
+            if choice == "back":
+                # For main menu, 'back' = do nothing or re-loop
+                continue
 
             if choice == "1":
                 difficulty_range = self.set_range()
+                if difficulty_range == "quit":
+                    return
+                if not difficulty_range:
+                    continue
                 if difficulty_range:
                     self.play_game(difficulty_range)
+            elif choice == "2":
+                result = self.bot_soloplay()
+                if result == "quit":
+                    break
                 else:
                     continue
-            elif choice == "2":
-                self.bot_soloplay()
-            elif self.user_name and choice == "3":
+            elif choice == "3":
                 self.change_name()
-            elif choice in ("q", "quit", "exit"):
-                print("Goodbye!")
-                break
-            else:
-                visible_nums = ", ".join(key for key in options if key.isdigit())
-                print(f"Please enter {visible_nums}, or 'q' to quit.")
+
 
     def set_range(self):
         while True:
-            print("\nRange difficulty settings: ")
-            print(f"1. Easy (1–{self.RANGE_SETTINGS['easy']})")
-            print(f"2. Medium (1–{self.RANGE_SETTINGS['medium']})")
-            print(f"3. Hard (1–{self.RANGE_SETTINGS['hard']})")
-            print("4. Back to menu")
-            inp = input("Choose range difficulty: ")
-            if inp == "1":
-                return {'name': 'easy', 'range': self.RANGE_SETTINGS['easy']}
-            elif inp == "2":
-                return {'name': 'medium', 'range': self.RANGE_SETTINGS['medium']}
-            elif inp == "3":
-                return {'name': 'hard', 'range': self.RANGE_SETTINGS['hard']}
-            elif inp == "4":
+            options = {
+                '1': 'Easy',
+                '2': 'Medium',
+                '3': 'Hard'
+           }
+            print("\nRange Options: ")
+            for key, label in options.items():
+                max_range = self.RANGE_SETTINGS[label.lower()]
+                print(f"{key}. {label} (1–{max_range})")
+            print("b. Back")
+            print("q. Quit")
+            valid_choices = list(options.keys())
+
+            choice = self.get_choice("Choose an option: ", valid_choices)
+
+            if choice == "back":
                 return None
-            else:
-                print("Invalid choice, try again.")
+            if choice == "quit":
+                print("Goodbye!")
+                return "quit"
+
+            if choice == "1":
+                return {'name': 'easy', 'range': self.RANGE_SETTINGS['easy']}
+            elif choice == "2":
+                return {'name': 'medium', 'range': self.RANGE_SETTINGS['medium']}
+            elif choice == "3":
+                return {'name': 'hard', 'range': self.RANGE_SETTINGS['hard']}
+
 
     def play_game(self, difficulty_range: dict[str, int | str]) -> None:
         random_number = random.randint(1, difficulty_range['range'])
@@ -100,17 +124,24 @@ class GuessTheNumberGame:
                 self.print_feedback("high")
 
     def bot_soloplay(self):
-        menu_choice = self.show_bot_menu()
-        if menu_choice is None:
-            return  # user went back to main menu
+        while True:
+            menu_choice = self.show_bot_menu()
+            if menu_choice == "quit":
+                return "quit"
+            if not menu_choice:
+                return None  # back to main menu
 
-        difficulty_range = self.set_range()
-        if not difficulty_range:
-            return  # user backed out
+            difficulty_range = self.set_range()
+            if difficulty_range == "quit":
+                return "quit"
+            if not difficulty_range:
+                continue  # back to bot menu
+
+            break
 
         bot = Bot.create()
         if bot is None:
-            return
+            return None
 
         print("Inviting a random bot ", end='')
         bot.thinking_animation()
@@ -161,22 +192,30 @@ class GuessTheNumberGame:
                 print(f"--==<< Bot mode >>==-- \n{bot.name} is now guessing on a number between {low_num} and {high_num}")
 
 
-    @staticmethod
-    def show_bot_menu():
+    def show_bot_menu(self):
         while True:
-            bot_menu_options = {'1': 'Random bots', '2': 'Special bots', '3': 'Back to main menu'}
+            options = {'1': 'Random bots', '2': 'Special bots'}
+
             print("\nBot menu")
-            for key, label in bot_menu_options.items():
+            for key, label in options.items():
                 print(f"{key}. {label}")
-            choice = input("Choose an option: ").strip().lower()
+            print("b. Back")
+            print("q. Quit")
+
+            valid_choices = list(options.keys())
+
+            choice = self.get_choice("Choose an option: ", valid_choices)
+
+            if choice == "back":
+                return None
+            if choice == "quit":
+                print("Goodbye!")
+                return "quit"
+
             if choice == "1":
                 return "random"
             elif choice == "2":
                 print("Not yet implemented")
-            elif choice == "3":
-                return None
-            else:
-                print("Invalid choice, try again.")
 
 
     def change_name(self):
@@ -210,8 +249,29 @@ class GuessTheNumberGame:
         else:
             print(direction)  # fallback for unexpected usage
 
+    @staticmethod
+    def get_choice(prompt: str, valid_options: list[str]) -> str:
+        """
+        Ask the user for a choice, normalize input, and handle standard commands.
+        Returns:
+            - the chosen option (e.g. "1", "2", "medium")
+            - "quit" if user wants to quit the program
+            - "back" if user wants to go back to previous menu
+        """
+        while True:
+            choice = input(prompt).strip().lower()
 
-    def calculate_score(self, tries: int, range_size: int) -> tuple[int, int]:
+            if choice in ("q", "quit", "exit"):
+                return "quit"
+            if choice in ("b", "back"):
+                return "back"
+            if choice in valid_options:
+                return choice
+
+            print("Invalid choice, try again.")
+
+    @staticmethod
+    def calculate_score(tries: int, range_size: int) -> tuple[int, int]:
         ideal = math.ceil(math.log2(range_size))
         score = max(0, (ideal * 2) - tries)
         return score, ideal

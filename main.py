@@ -28,32 +28,28 @@ class GuessTheNumberGame:
 
             # Build list of valid choices dynamically
             valid_choices = list(options.keys())
-
             choice = self.get_choice("Choose an option: ", valid_choices)
 
             if choice == "quit":
                 print("Goodbye!")
                 break
             if choice == "back":
-                # For main menu, 'back' = do nothing or re-loop
                 continue
 
-            if choice == "1":
-                difficulty_range = self.set_range()
-                if difficulty_range == "quit":
-                    return
-                if not difficulty_range:
-                    continue
-                if difficulty_range:
-                    self.play_game(difficulty_range)
-            elif choice == "2":
-                result = self.bot_soloplay()
-                if result == "quit":
-                    break
-                else:
-                    continue
-            elif choice == "3":
-                self.change_name()
+            actions = {
+                '1': self.start_player_game,
+                '2': self.bot_soloplay,
+                '3': self.change_name
+            }
+
+            action = actions.get(choice)
+            result = action()
+
+            if result == "quit":
+                print("Goodbye!")
+                break
+            if result == "back":    # For main menu, 'back' = do nothing or re-loop
+                continue
 
 
     def set_range(self):
@@ -76,7 +72,6 @@ class GuessTheNumberGame:
             if choice == "back":
                 return None
             if choice == "quit":
-                print("Goodbye!")
                 return "quit"
 
             if choice == "1":
@@ -194,28 +189,26 @@ class GuessTheNumberGame:
 
     def show_bot_menu(self):
         while True:
-            options = {'1': 'Random bots', '2': 'Special bots'}
+            options = {
+                '1': ('Random bots', 'random'),
+                '2': ('Special bots', 'special') # placeholder, creates a standard random bot atm
+            }
 
             print("\nBot menu")
-            for key, label in options.items():
+            for key, (label, _) in options.items():
                 print(f"{key}. {label}")
             print("b. Back")
             print("q. Quit")
 
             valid_choices = list(options.keys())
-
             choice = self.get_choice("Choose an option: ", valid_choices)
 
+            if choice == "quit":
+                return "quit"
             if choice == "back":
                 return None
-            if choice == "quit":
-                print("Goodbye!")
-                return "quit"
 
-            if choice == "1":
-                return "random"
-            elif choice == "2":
-                print("Not yet implemented")
+            return options[choice][1]
 
 
     def change_name(self):
@@ -237,6 +230,15 @@ class GuessTheNumberGame:
         else:
             print(f"Welcome back, {self.user_name}!")
         return self.user_name
+
+
+    def start_player_game(self):
+        difficulty_range = self.set_range()
+        if difficulty_range == "quit":
+            return "quit"
+        if not difficulty_range:
+            return "back"
+        return self.play_game(difficulty_range)
 
 
     @staticmethod

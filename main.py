@@ -6,13 +6,25 @@ import random
 import math
 
 from bot import Bot
+from enum import Enum
+
+class Difficulty(Enum):
+    EASY = "easy"
+    MEDIUM = "medium"
+    HARD = "hard"
+
 
 class GuessTheNumberGame:
-    RANGE_SETTINGS = {'easy': 50, 'medium': 100, 'hard': 1000}
+    RANGE_SETTINGS = {
+        Difficulty.EASY: 50,
+        Difficulty.MEDIUM: 100,
+        Difficulty.HARD: 1000
+    }
 
     def __init__(self):
         self.user_name: str | None = None
         self.score: int = 0
+        self.difficulty = Difficulty.EASY
 
 
     def menu(self):
@@ -55,14 +67,14 @@ class GuessTheNumberGame:
     def set_range(self):
         while True:
             options = {
-                '1': 'Easy',
-                '2': 'Medium',
-                '3': 'Hard'
+                '1': Difficulty.EASY,
+                '2': Difficulty.MEDIUM,
+                '3': Difficulty.HARD
            }
             print("\nRange Options: ")
             for key, label in options.items():
-                max_range = self.RANGE_SETTINGS[label.lower()]
-                print(f"{key}. {label} (1–{max_range})")
+                max_range = self.RANGE_SETTINGS[label]
+                print(f"{key}. {label.value.capitalize()} (1–{max_range})")
             print("b. Back")
             print("q. Quit")
             valid_choices = list(options.keys())
@@ -75,25 +87,26 @@ class GuessTheNumberGame:
                 return "quit"
 
             if choice == "1":
-                return {'name': 'easy', 'range': self.RANGE_SETTINGS['easy']}
+                return Difficulty.EASY
             elif choice == "2":
-                return {'name': 'medium', 'range': self.RANGE_SETTINGS['medium']}
+                return Difficulty.MEDIUM
             elif choice == "3":
-                return {'name': 'hard', 'range': self.RANGE_SETTINGS['hard']}
+                return Difficulty.HARD
 
 
-    def play_game(self, difficulty_range: dict[str, int | str]) -> None:
-        random_number = random.randint(1, difficulty_range['range'])
+    def play_game(self) -> None:
+        max_range = self.RANGE_SETTINGS[self.difficulty]
+        random_number = random.randint(1, max_range)
         used_numbers = []
         tries = 0
         self.ensure_user_name()
-        print(f"Game is on! {self.user_name} is playing on {difficulty_range['name']} difficulty.")
+        print(f"Game is on! {self.user_name} is playing on {self.difficulty.value} difficulty.")
         while True:
             try:
-                guess = int(input(f"Guess on a number between 1 and {difficulty_range['range']}: "))
+                guess = int(input(f"Guess on a number between 1 and {max_range}: "))
                 tries += 1
                 used_numbers.append(guess)
-                if guess > difficulty_range['range'] or guess < 1:
+                if guess > max_range or guess < 1:
                     tries -= 1
                     used_numbers.pop()
                     raise ValueError
@@ -101,7 +114,7 @@ class GuessTheNumberGame:
                 print("Incorrect input. Please try again.")
                 continue
             if guess == random_number:
-                score, ideal = self.calculate_score(tries, difficulty_range['range'])
+                score, ideal = self.calculate_score(tries, max_range)
                 self.score = score
                 print(f"Congratulations {self.user_name}! {random_number} was the correct number.")
                 print(f"Ideal guesses: {ideal}")
@@ -109,7 +122,7 @@ class GuessTheNumberGame:
                 print(f"Your score: {score}/{ideal * 2}")
                 if tries > 1:
                     print(f"You guessed on the following numbers: "
-                          f"\n{used_numbers} on {difficulty_range['name']} difficulty.")
+                          f"\n{used_numbers} on {self.difficulty.value} difficulty.")
                 else:
                     print("Very impressive! You beat the game on the first try! ")
                 break
@@ -141,14 +154,15 @@ class GuessTheNumberGame:
         print("Inviting a random bot ", end='')
         bot.thinking_animation()
 
-        random_number = random.randint(1, difficulty_range['range'])
+        max_range = self.RANGE_SETTINGS[self.difficulty]
+        random_number = random.randint(1, max_range)
         used_numbers = []
         tries = 0
-        high_num = difficulty_range['range']
+        high_num = max_range
         low_num = 1
         bot_guess = bot.guess(low_num, high_num)
 
-        print(f"\n{bot.name} ({bot.skill.capitalize()} bot) has joined the session.")
+        print(f"\n{bot.name} ({bot.skill.value.capitalize()} bot) has joined the session.")
         print(f"--==<< Bot mode >>==-- \n{bot.name} is now guessing on a number between {low_num} and {high_num}")
 
         while True:
@@ -238,8 +252,8 @@ class GuessTheNumberGame:
             return "quit"
         if not difficulty_range:
             return "back"
-        return self.play_game(difficulty_range)
-
+        self.difficulty = difficulty_range
+        return self.play_game()
 
     @staticmethod
     def print_feedback(direction: str):

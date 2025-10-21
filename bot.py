@@ -1,14 +1,19 @@
 # bot.py
 
-import requests
-import random
-import time
-import sys
+import requests, random, time, sys
+from enum import Enum
+
+
+class Skill(Enum):
+    NOVICE = "novice"
+    COMPETENT = "competent"
+    EXPERT = "expert"
+
 
 class Bot:
     def __init__(self, name: str | None):
         self.name = name or self.generate_name()
-        self.skill = random.choice(["novice", "competent", "expert"])
+        self.skill = random.choice(list(Skill))
 
 
     @classmethod
@@ -32,15 +37,15 @@ class Bot:
 
     def guess(self, low: int, high: int) -> int:
         """Return the next guess based on skill level."""
-        if self.skill == "novice":
+        if self.skill is Skill.NOVICE:
             return random.randint(low, high)
-        elif self.skill == "competent":
+        elif self.skill is Skill.COMPETENT:
             mid = (low + high) // 2
             range_size = high - low
             max_dev = max(1, range_size // 10)
             deviation = random.randint(-max_dev, max_dev)
             return max(low, min(high, mid + deviation))
-        elif self.skill == "expert":
+        elif self.skill is Skill.EXPERT:
             return (low + high) // 2
         else:
             raise ValueError(f"Unknown bot skill: {self.skill}")

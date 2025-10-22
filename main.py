@@ -14,6 +14,11 @@ class Difficulty(Enum):
     HARD = "hard"
 
 
+class SystemCommand(Enum):
+    QUIT = "quit"
+    BACK = "back"
+
+
 class GuessTheNumberGame:
     RANGE_SETTINGS = {
         Difficulty.EASY: 50,
@@ -36,16 +41,16 @@ class GuessTheNumberGame:
             print("\nMenu")
             for key, label in options.items():
                 print(f"{key}. {label}")
-            print("q. Quit")
+            print(f"q. {SystemCommand.QUIT.value.capitalize()}")
 
             # Build list of valid choices dynamically
             valid_choices = list(options.keys())
             choice = self.get_choice("Choose an option: ", valid_choices)
 
-            if choice == "quit":
+            if choice is SystemCommand.QUIT:
                 print("Goodbye!")
                 break
-            if choice == "back":
+            if choice is SystemCommand.BACK:
                 continue
 
             actions = {
@@ -57,10 +62,10 @@ class GuessTheNumberGame:
             action = actions.get(choice)
             result = action()
 
-            if result == "quit":
+            if result is SystemCommand.QUIT:
                 print("Goodbye!")
                 break
-            if result == "back":    # For main menu, 'back' = do nothing or re-loop
+            if result is SystemCommand.BACK:    # For main menu, 'back' = do nothing or re-loop
                 continue
 
 
@@ -75,16 +80,16 @@ class GuessTheNumberGame:
             for key, label in options.items():
                 max_range = self.RANGE_SETTINGS[label]
                 print(f"{key}. {label.value.capitalize()} (1–{max_range})")
-            print("b. Back")
-            print("q. Quit")
+            print(f"b. {SystemCommand.BACK.value.capitalize()}")
+            print(f"q. {SystemCommand.QUIT.value.capitalize()}")
             valid_choices = list(options.keys())
 
             choice = self.get_choice("Choose an option: ", valid_choices)
 
-            if choice == "back":
+            if choice is SystemCommand.QUIT:
+                return SystemCommand.QUIT
+            if choice is SystemCommand.BACK:
                 return None
-            if choice == "quit":
-                return "quit"
 
             if choice == "1":
                 return Difficulty.EASY
@@ -134,14 +139,14 @@ class GuessTheNumberGame:
     def bot_soloplay(self):
         while True:
             menu_choice = self.show_bot_menu()
-            if menu_choice == "quit":
-                return "quit"
+            if menu_choice is SystemCommand.QUIT:
+                return SystemCommand.QUIT
             if not menu_choice:
                 return None  # back to main menu
 
             difficulty_range = self.set_range()
-            if difficulty_range == "quit":
-                return "quit"
+            if difficulty_range is SystemCommand.QUIT:
+                return SystemCommand.QUIT
             if not difficulty_range:
                 continue  # back to bot menu
 
@@ -211,15 +216,15 @@ class GuessTheNumberGame:
             print("\nBot menu")
             for key, (label, _) in options.items():
                 print(f"{key}. {label}")
-            print("b. Back")
-            print("q. Quit")
+            print(f"b. {SystemCommand.BACK.value.capitalize()}")
+            print(f"q. {SystemCommand.QUIT.value.capitalize()}")
 
             valid_choices = list(options.keys())
             choice = self.get_choice("Choose an option: ", valid_choices)
 
-            if choice == "quit":
-                return "quit"
-            if choice == "back":
+            if choice is SystemCommand.QUIT:
+                return SystemCommand.QUIT
+            if choice is SystemCommand.BACK:
                 return None
 
             return options[choice][1]
@@ -248,10 +253,10 @@ class GuessTheNumberGame:
 
     def start_player_game(self):
         difficulty_range = self.set_range()
-        if difficulty_range == "quit":
-            return "quit"
+        if difficulty_range is SystemCommand.QUIT:
+            return SystemCommand.QUIT
         if not difficulty_range:
-            return "back"
+            return SystemCommand.BACK
         self.difficulty = difficulty_range
         return self.play_game()
 
@@ -266,7 +271,7 @@ class GuessTheNumberGame:
             print(direction)  # fallback for unexpected usage
 
     @staticmethod
-    def get_choice(prompt: str, valid_options: list[str]) -> str:
+    def get_choice(prompt: str, valid_options: list[str]) -> SystemCommand | str:
         """
         Ask the user for a choice, normalize input, and handle standard commands.
         Returns:
@@ -278,9 +283,9 @@ class GuessTheNumberGame:
             choice = input(prompt).strip().lower()
 
             if choice in ("q", "quit", "exit"):
-                return "quit"
+                return SystemCommand.QUIT
             if choice in ("b", "back"):
-                return "back"
+                return SystemCommand.BACK
             if choice in valid_options:
                 return choice
 

@@ -149,7 +149,7 @@ class GuessTheNumberGame:
                 return SystemCommand.QUIT
             if not difficulty_range:
                 continue  # back to bot menu
-
+            self.difficulty = difficulty_range
             break
 
         bot = Bot.create()
@@ -168,7 +168,7 @@ class GuessTheNumberGame:
         bot_guess = bot.guess(low_num, high_num)
 
         print(f"\n{bot.name} ({bot.skill.value.capitalize()} bot) has joined the session.")
-        print(f"--==<< Bot mode >>==-- \n{bot.name} is now guessing on a number between {low_num} and {high_num}")
+        print(f"--==<< Bot mode >>==-- \n{bot.react_normal(low_num, high_num)}")
 
         while True:
             tries += 1
@@ -196,14 +196,14 @@ class GuessTheNumberGame:
 
             # Shared feedback logic
             if low_num >= high_num:
-                print(f"--==<< Bot mode >>==-- \n{bot.name} is smiling from ear to ear when placing the final guess!")
+                print(f"--==<< Bot mode >>==-- \n{bot.react_final()}")
                 bot_guess = high_num
                 continue
             elif high_num - low_num == 1:
-                print(f"--==<< Bot mode >>==-- \n{bot.name} has narrowed it down to either {low_num} or {high_num}!")
+                print(f"--==<< Bot mode >>==-- \n{bot.react_narrow(low_num, high_num)}")
             else:
                 self.print_feedback(direction)
-                print(f"--==<< Bot mode >>==-- \n{bot.name} is now guessing on a number between {low_num} and {high_num}")
+                print(f"--==<< Bot mode >>==-- \n{bot.react_normal(low_num, high_num)}")
 
 
     def show_bot_menu(self):

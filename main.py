@@ -4,6 +4,8 @@
 
 import random
 import math
+import os
+import json
 
 from bot import Bot
 from enum import Enum
@@ -18,6 +20,8 @@ class SystemCommand(Enum):
     QUIT = "quit"
     BACK = "back"
 
+base_dir = os.path.dirname(os.path.abspath(__file__))
+numbergame_path = os.path.join(base_dir, "highscore.json")
 
 class GuessTheNumberGame:
     RANGE_SETTINGS = {
@@ -30,13 +34,20 @@ class GuessTheNumberGame:
         self.user_name: str | None = None
         self.score: int = 0
         self.difficulty = Difficulty.EASY
+        self.highscore: list[dict] = []
 
 
     def menu(self):
+        try:
+            with open(numbergame_path, "r") as f:
+                self.highscore = json.load(f)
+        except FileNotFoundError:
+            self.highscore: list[dict] = []
+
         while True:
-            options = {'1': 'Play game', '2': 'Bot play'}
+            options = {'1': 'Play game', '2': 'Bot play', '3': 'High Scores'}
             if self.user_name is not None:
-                options['3'] = 'Change name'
+                options['4'] = 'Change name'
 
             print("\nMenu")
             for key, label in options.items():
@@ -56,7 +67,8 @@ class GuessTheNumberGame:
             actions = {
                 '1': self.start_player_game,
                 '2': self.bot_soloplay,
-                '3': self.change_name
+                '3': self.show_highscores,
+                '4': self.change_name
             }
 
             action = actions.get(choice)
@@ -125,6 +137,13 @@ class GuessTheNumberGame:
                 print(f"Ideal guesses: {ideal}")
                 print(f"Your guesses: {tries}")
                 print(f"Your score: {score}/{ideal * 2}")
+                self.highscore.append({
+                    "name": self.user_name,
+                    "score": score
+                })
+                self.highscore.sort(key=lambda x: x["score"], reverse=True)
+                self.highscore = self.highscore[:10]  # keep only top 10
+                self.save_highscore(self.highscore)
                 if tries > 1:
                     print(f"You guessed on the following numbers: "
                           f"\n{used_numbers} on {self.difficulty.value} difficulty.")
@@ -296,6 +315,25 @@ class GuessTheNumberGame:
         ideal = math.ceil(math.log2(range_size))
         score = max(0, (ideal * 2) - tries)
         return score, ideal
+
+
+    def show_highscores(self):
+        if not self.highscore:
+            print("\nNo highscores yet!")
+            return
+
+        print("\n--==<< High Scores >>==--")
+        for i, entry in enumerate(self.highscore, start=1):
+            print(f"{i}. {entry['name']}: {entry['score']}")
+
+
+    @staticmethod
+    def save_highscore(highscore: list[dict]):
+        try:
+            with open(numbergame_path, "w") as f:
+                json.dump(highscore, f, indent=4)
+        except Exception as e:
+            print(f"Error saving highscore: {e}")
 
 
 if __name__ == "__main__":

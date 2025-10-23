@@ -1,0 +1,33 @@
+# Project specific
+highscore.json
+
+# PyCharm project settings
+.idea/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment folders (common names)
+venv/
+.env/
+.venv/
+env/
+
+# macOS file spam (just in case)
+.DS_Store
+
+# VSCode settings (if you ever open it there)
+.vscode/
+
+# PyInstaller / build artifacts (future-proofing)
+build/
+dist/
+*.spec
+
+# Mypy or Pytest cache (if you add tools later)
+.mypy_cache/
+.pytest_cache/
+

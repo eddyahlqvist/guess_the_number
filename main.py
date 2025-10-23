@@ -42,7 +42,7 @@ class GuessTheNumberGame:
             with open(numbergame_path, "r") as f:
                 self.highscore = json.load(f)
         except FileNotFoundError:
-            self.highscore: list[dict] = []
+            self.highscore = []
 
         while True:
             options = {'1': 'Play game', '2': 'Bot play', '3': 'High Scores'}
@@ -62,6 +62,7 @@ class GuessTheNumberGame:
                 print("Goodbye!")
                 break
             if choice is SystemCommand.BACK:
+                print("\nYou can't go back from the main menu... or can you? 😉")
                 continue
 
             actions = {
@@ -77,7 +78,7 @@ class GuessTheNumberGame:
             if result is SystemCommand.QUIT:
                 print("Goodbye!")
                 break
-            if result is SystemCommand.BACK:    # For main menu, 'back' = do nothing or re-loop
+            if result is SystemCommand.BACK:
                 continue
 
 

@@ -6,6 +6,7 @@ import random
 import math
 import os
 import json
+import time
 
 from bot import Bot
 from enum import Enum
@@ -119,6 +120,7 @@ class GuessTheNumberGame:
         tries = 0
         self.ensure_user_name()
         print(f"Game is on! {self.user_name} is playing on {self.difficulty.value} difficulty.")
+        start_time = time.time()
         while True:
             try:
                 guess = int(input(f"Guess on a number between 1 and {max_range}: "))
@@ -134,16 +136,36 @@ class GuessTheNumberGame:
             if guess == random_number:
                 score, ideal = self.calculate_score(tries, max_range)
                 self.score = score
+                end_time = time.time()
+                elapsed = end_time - start_time
+                average_time = elapsed / tries
+                threshold = 3.0  # seconds per guess
+                difference = average_time - threshold
+                if difference >= 0:
+                    time_adjustment = math.floor(difference / 0.5)
+                else:
+                    time_adjustment = math.ceil(difference / 0.5)
+                final_score = max(0, score - time_adjustment)
+
                 print(f"Congratulations {self.user_name}! {random_number} was the correct number.")
                 print(f"Ideal guesses: {ideal}")
                 print(f"Your guesses: {tries}")
-                print(f"Your score: {score}/{ideal * 2}")
+                print(f"Time taken: {elapsed:.1f} seconds")
+                print(f"Average time per guess: {average_time:.2f} seconds")
+
+                if time_adjustment < 0:
+                    print(f"Speed bonus: +{abs(time_adjustment)} points!")
+                elif time_adjustment > 0:
+                    print(f"Time penalty: -{time_adjustment} points.")
+
+                print(f"Final score: {final_score}/{ideal * 2}")
+
                 self.highscore.append({
                     "name": self.user_name,
-                    "score": score
+                    "score": final_score
                 })
-                self.highscore.sort(key=lambda x: x["score"], reverse=True)
-                self.highscore = self.highscore[:10]  # keep only top 10
+                self.highscore.sort(key=lambda e: e["score"], reverse=True)
+                self.highscore = self.highscore[:10]
                 self.save_highscore(self.highscore)
                 if tries > 1:
                     print(f"You guessed on the following numbers: "
